@@ -1,9 +1,9 @@
 import os
 
-def check_dir(filename):
-    if not os.path.exists(os.path.dirname(filename)):
+def check_dir(path):
+    if not os.path.exists(os.path.dirname(path)):
         try:
-            os.makedirs(os.path.dirname(filename))
+            os.makedirs(os.path.dirname(path))
             return True
         except OSError as e:
             if e.errno != errno.EEXIST:
@@ -12,7 +12,7 @@ def check_dir(filename):
         return True
 
 def check_header(filename, headers):
-    if not os.path.isfile(filename):
+    if not os.path.exists(filename):
         try:
             with open(filename, 'a') as f:
                 for header in headers[:-1]:
@@ -20,7 +20,6 @@ def check_header(filename, headers):
                 f.write('{}\n'.format(headers[-1]))
             return True
         except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+            raise
     else:
         return True
