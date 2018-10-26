@@ -5,6 +5,33 @@ import json
 import os
 import sys
 
+def check_dir(filename):
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+def save_csv(filename, data):
+    check_dir(filename)
+    #Create csv header if file does not exist
+    if not os.path.isfile(filename):
+        try:
+            with open(filename, 'a') as f:
+                f.write('{0},{1},{2},{3},{4}\n'.format('id','rule','description', 'owner', 'url'))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+    # Add data to csv file
+    with open(filename, 'a') as f:
+        f.write('{0},{1},{2},{3},{4}\n'.format(data['id'],data['rule'],data['description'], data['owner']['login'], data['url']))
+
+def save_json(filename, data):
+    check_dir(filename)
+    with open(filename, 'a') as f:
+        json.dump(data, f)
+
+
 def get_gists(url):
     r = requests.get(url)
     gists = r.json()
@@ -22,16 +49,11 @@ def get_gists(url):
 
     return gists_data
 
-def save_gists(data, id):
-    filename = 'logs/json/{}.json'.format(id)
-    if not os.path.exists(os.path.dirname(filename)):
-        try:
-            os.makedirs(os.path.dirname(filename))
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-    with open(filename, 'a') as f:
-        json.dump(data, f)
+def save_gists(data):
+    # Store record of gist in csv
+    save_csv('logs/csv/gists.csv', data)
+    # Store copy of gist
+    save_json('logs/json/{}.json'.format(data['id']), data)
 
 if __name__ == "__main__":
     try:
@@ -58,7 +80,8 @@ if __name__ == "__main__":
                 #Outputs results if a match occurred
                 if len(results) > 0:
                     print('Found match in gist {}'.format(gist['id']))
-                    save_gists(gist, gist['id'])
+                    gist['rule'] = results
+                    save_gists(gist)
 
             print('Sleeping for 5 minutes')
             time.sleep(300)
