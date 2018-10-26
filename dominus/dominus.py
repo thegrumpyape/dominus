@@ -3,16 +3,28 @@ import time
 import inputs
 import scanner
 import outputs
+import helpers
+import os
 
 if __name__ == "__main__":
     try:
         print('Starting Dominus v0.1')
 
+        print('Loading history')
+        if helpers.check_dir('tmp/history.tmp'):
+            if os.path.isfile('tmp/history.tmp'):
+                with open('tmp/history.tmp', 'r') as f:
+                    history = f.read().splitlines()
+            else:
+                history = []
+        else:
+            history = []
+
         print('Initializing inputs')
-        gistInput = inputs.Gist('https://api.github.com/gists')
+        gistCollector = inputs.GistCollector('https://api.github.com/gists')
 
         print('Initializing scanner')
-        scanner = scanner.Scanner('tmp/history.tmp','rules/index.yar')
+        scanner = scanner.Scanner('rules/index.yar')
 
         print('Initializing outputs')
         csvOutput = outputs.CSV('logs/csv/')
@@ -21,7 +33,7 @@ if __name__ == "__main__":
         while True:
             # Get gists
             print('Getting gists')
-            gists = gistInput.scrape()
+            gists = gistCollector.scrape(history)
 
             print('Comparing to Yara rules')
             for gist in gists:
@@ -33,7 +45,7 @@ if __name__ == "__main__":
                         gist['rule'] = results
 
                         # Store record of gist in csv
-                        csvOutput.store_data(gist, 'gists.csv', ['@timestamp','id','rule','description','url'])
+                        csvOutput.store_data(gist, 'gists.csv', ['@timestamp','id','rule','user','raw_url'])
                         # Store copy of gist
                         jsonOutput.store_data(gist, '{}.json'.format(gist['id']))
 
