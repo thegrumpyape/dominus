@@ -1,10 +1,5 @@
-import yara
-import time
-import requests
 import sys
-import datetime
-import helpers
-import os
+import time
 import inputs
 import scanner
 import outputs
