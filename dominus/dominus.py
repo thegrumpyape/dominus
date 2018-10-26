@@ -4,33 +4,8 @@ import requests
 import json
 import os
 import sys
-
-def check_dir(filename):
-    if not os.path.exists(os.path.dirname(filename)):
-        try:
-            os.makedirs(os.path.dirname(filename))
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-def save_csv(filename, data):
-    check_dir(filename)
-    #Create csv header if file does not exist
-    if not os.path.isfile(filename):
-        try:
-            with open(filename, 'a') as f:
-                f.write('{0},{1},{2},{3},{4}\n'.format('id','rule','description', 'owner', 'url'))
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-    # Add data to csv file
-    with open(filename, 'a') as f:
-        f.write('{0},{1},{2},{3},{4}\n'.format(data['id'],data['rule'],data['description'], data['owner']['login'], data['url']))
-
-def save_json(filename, data):
-    check_dir(filename)
-    with open(filename, 'a') as f:
-        json.dump(data, f)
-
+import datetime
+from outputs import json_output, csv_output
 
 def get_gists(url):
     r = requests.get(url)
@@ -40,6 +15,7 @@ def get_gists(url):
 
     gists_data = []
     for gist in gists:
+        gist['@timestamp'] = datetime.datetime.now().isoformat()
         #Get raw data of gists
         for filename, values in gist["files"].items():
             r = requests.get(values["raw_url"])
@@ -51,9 +27,12 @@ def get_gists(url):
 
 def save_gists(data):
     # Store record of gist in csv
-    save_csv('logs/csv/gists.csv', data)
+    csvOutput = csv_output.CSVOutput('logs/csv/gists.csv', ['@timestamp','id','rule','description','url'])
+    csvOutput.store_data(data)
+
     # Store copy of gist
-    save_json('logs/json/{}.json'.format(data['id']), data)
+    jsonOutput = json_output.JSONOutput('logs/json/{}.json'.format(data['id']))
+    jsonOutput.store_data(data)
 
 if __name__ == "__main__":
     try:
