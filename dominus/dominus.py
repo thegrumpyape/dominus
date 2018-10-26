@@ -3,34 +3,8 @@ import time
 import requests
 import sys
 import datetime
+from inputs import gists
 from outputs import json_output, csv_output
-
-def get_gists(url):
-    r = requests.get(url)
-    gists = r.json()
-
-    print('Getting data from {} gists'.format(len(gists)))
-
-    gists_data = []
-    for gist in gists:
-        gist['@timestamp'] = datetime.datetime.now().isoformat()
-        #Get raw data of gists
-        for filename, values in gist["files"].items():
-            r = requests.get(values["raw_url"])
-            raw_data = r.text
-            gist["files"][filename]["raw_data"] = raw_data
-        gists_data.append(gist)
-
-    return gists_data
-
-def save_gists(data):
-    # Store record of gist in csv
-    csvOutput = csv_output.CSVOutput('logs/csv/gists.csv', ['@timestamp','id','rule','description','url'])
-    csvOutput.store_data(data)
-
-    # Store copy of gist
-    jsonOutput = json_output.JSONOutput('logs/json/{}.json'.format(data['id']))
-    jsonOutput.store_data(data)
 
 if __name__ == "__main__":
     try:
@@ -43,7 +17,7 @@ if __name__ == "__main__":
         while True:
             # Get gists
             print('Getting gists')
-            gists = get_gists('https://api.github.com/gists')
+            gists = gists.get_gists('https://api.github.com/gists')
 
             print('Comparing to Yara rules')
             for gist in gists:
@@ -58,7 +32,14 @@ if __name__ == "__main__":
                 if len(results) > 0:
                     print('Found match in gist {}'.format(gist['id']))
                     gist['rule'] = results
-                    save_gists(gist)
+
+                    # Store record of gist in csv
+                    csvOutput = csv_output.CSVOutput('logs/csv/gists.csv', ['@timestamp','id','rule','description','url'])
+                    csvOutput.store_data(gist)
+
+                    # Store copy of gist
+                    jsonOutput = json_output.JSONOutput('logs/json/{}.json'.format(gist['id']))
+                    jsonOutput.store_data(gist)
 
             print('Sleeping for 5 minutes')
             time.sleep(300)
