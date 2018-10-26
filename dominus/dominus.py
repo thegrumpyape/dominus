@@ -1,8 +1,6 @@
 import yara
 import time
 import requests
-import json
-import os
 import sys
 import datetime
 from outputs import json_output, csv_output
