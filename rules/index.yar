@@ -1,2 +1,2 @@
-include "test.yar"
+/*include "test.yar"*/
 include "email.yar"
