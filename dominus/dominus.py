@@ -1,6 +1,6 @@
 import sys
 import time
-import inputs
+import ediblepaste
 import scanner
 import outputs
 import helpers
@@ -21,7 +21,7 @@ if __name__ == "__main__":
             history = []
 
         print('Initializing inputs')
-        gistCollector = inputs.GistCollector('https://api.github.com/gists')
+        ep = ediblepaste.EdiblePaste()
 
         print('Initializing scanner')
         scanner = scanner.Scanner('rules/index.yar')
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         while True:
             # Get gists
             print('Getting gists')
-            gists = gistCollector.scrape(history)
+            gists = ep.scrape()
 
             print('Comparing to Yara rules')
             for gist in gists:
@@ -41,13 +41,13 @@ if __name__ == "__main__":
 
                     #Outputs results if a match occurred
                     if len(results) > 0:
-                        print('Found match in gist {}'.format(gist['id']))
+                        print('Found match in gist {}'.format(gist['key']))
                         gist['rule'] = results
 
                         # Store record of gist in csv
-                        csvOutput.store_data(gist, 'gists.csv', ['@timestamp','id','rule','user','raw_url'])
+                        csvOutput.store_data(gist, 'gists.csv', ['key','rule','user','full_url','scrape_url'])
                         # Store copy of gist
-                        jsonOutput.store_data(gist, '{}.json'.format(gist['id']))
+                        jsonOutput.store_data(gist, '{}.json'.format(gist['key']))
 
             print('Sleeping for 5 minutes')
             time.sleep(300)
