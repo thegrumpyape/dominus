@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "21e3a405f013202aae28703020f4535447dcf30de1fcafea265744671afc9513"
+            "sha256": "dd083d71f14432782cfb8d6bb59c3b4a8aca6138c52d25cf17cc801c0f90c5f9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -31,7 +31,12 @@
             "version": "==3.0.4"
         },
         "ediblepaste": {
-            "path": "./../ediblepaste"
+            "hashes": [
+                "sha256:34eb14875cbdf0d236e81740f09eaf78f8f06f925ba4768cbcdb75eb2342428f",
+                "sha256:a1c3894ae415bff64b7fdc45739a7eb8c8a9e121cd25aa8cfe9adb8f67bf3ef3"
+            ],
+            "index": "pypi",
+            "version": "==1.2"
         },
         "idna": {
             "hashes": [
