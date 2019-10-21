@@ -1,8 +1,8 @@
--i https://pypi.org/simple
-certifi==2018.10.15
+-i https://pypi.org/simple/
+certifi==2019.9.11
 chardet==3.0.4
 ediblepaste==1.2
 idna==2.7
 requests==2.20.0
-urllib3==1.24; python_version != '3.0.*'
+urllib3==1.24.2
 yara-python==3.8.1
